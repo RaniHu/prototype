@@ -8,6 +8,18 @@
 
 
 <script>
+    //变量
+    /*1.基本数据类型：undefined，null，boolean，number，string
+      2.引用类型：引用类型的值是保存在内存中的对象(只能为引用类型添加属性)
+      3.检测类型：-typeof操作符检测一个变量是字符串，数值，布尔值还是undefined(基本数据类型)的最佳工具。null会返回object
+                  var s=null      typeof s
+                  -instanceof检测引用类型
+
+    */
+
+    var val='huran';
+    console.log(typeof val);
+
     //    设计模式的存在原因是为了代码的复用性和可维护性。应遵守以下原则
     /* 1.  开闭原则（对扩展开放，对修改关闭）
      2.  里氏转换原则（子类继承父类，可单独运行）
@@ -447,7 +459,7 @@
      }
      }*/
 
-    var compare = compareNum;         //将函数保存在变量中
+   /* var compare = compareNum;         //将函数保存在变量中
     compareNum = null;                //将变量设置为null
     console.log(compare(4));        //但在调用compare时必须执行compareNum（），但此时compareNum已经不是函数，会抛出错误
 
@@ -468,19 +480,41 @@
         } else {
             return num * compareNumber(num - 1);
         }
-    });
+    });*/
 
 
     //闭包
-    //1.闭包是指：有权访问另一个函数作用域中的变量的函数
-    //2.创建方式：在一个函数内部创建另一个函数
-    //3.作用域链：本质上是一个指向变量对象的指针列表，
-    /* 4.一般来说函数执行完毕后，局部活动对象会被销毁，内存中仅保存全局变量，但在闭包中不同。
-     在另一个函数内部定义的函数会将包含函数(外部函数)的活动对象添加到它的作用域链中。
+    /*1.闭包是指：有权访问另一个函数作用域中的变量的函数
+      2.创建方式：在一个函数内部创建另一个函数
+      3.作用域链：本质上是一个指向变量对象的指针列表，它只引用但不包含实际变量对象
+      4.函数第一次被调用时，会创建一个执行环境及相应的作用域链，并把作用域链赋值给一个特殊的的内部对象scope。
+        然后使用this，argument和其他命名参数的值来初始化这个函数的活动对象。
+        在作用域链中，外部函数的活动对象始终处于第二位
+      5.一般来说函数执行完毕后，局部活动对象会被销毁，内存中仅保存全局变量，但在闭包中不同。
+        在另一个函数内部定义的函数会将包含函数(外部函数)的活动对象添加到它的作用域链中。
+      6.谨慎使用：闭包会携带包含它的函数的作用域，因此更占内存，过度使用会导致占用内存过多
+      7.总结：在一个函数内部定义了另一个函数，就创建了闭包。闭包有权访问函数内部的所有变量。
+        -后台执行环境中，闭包包含着自己的作用域，包含函数的作用域和全局作用域。
+        -通常函数的作用域及其所有变量在执行结束后被销毁
+        -但当函数返回了一个闭包，这个函数的作用域就会一直保存在闭包中知道闭包不存在
+*/
+/*
+    function compare(object1, object2) {            //定义了compare函数
+        if (object1 > object2) {                    //第一次调用会创建this，argument，object1，object2的活动对象
+            return -1;
+        } else if (object2 > object1) {
+            return 1
+        } else {
+            return 0;
+        }
+    }
+    var result=compare(5,10);                       //在全局作用域中调用compare
+    console.log(result);                            /!*全局执行环境的变量对象this，compare，result在compare()
+                                                      执行环境的作用域链处于第二位*!/*/
 
-     */
-    function demo(name) {
-        return function (object1, object2) {
+
+    /*function demo(name) {
+        return function (object1, object2) {        //此匿名在外部函数中被返回后,它的作用域链初始化为包含外部函数的活动对象和全局变量对象。即可访问外部函数中的所有变量。函数的作用域链中会包含外部函数demo()的活动对象
             var value1 = object1[name];             //访问了外部函数的变量name
             var value2 = object2[name];
             if (value1 > value2) {
@@ -493,8 +527,182 @@
         };
     }
 
+    //创建函数
+    var test=demo('name');                         /!*demo函数在执行完毕后，其执行环境的作用域链会被销毁，但活动对象不会被销毁，
+                                                     因为匿名函数的作用域链仍在引用这个活动对象，所以依然保存在内存中，知道匿名函数被销毁*!/
+    //调用函数
+    var result=test({name:'rita'},{name:'lucy'});
+    console.log(result);
+
+    //接触对匿名函数的引用(以便释放内存)
+    test=null;                                      //等于通知垃圾回收例程将其清楚。随着匿名函数的作用域链被销毁，其他作用域(除全局作用域)也都可以安全销毁
+*/
+
+
+    //一、闭包与变量
+    //1.闭包指取得包含函数中任何变量的最后一个值
+
+
+   /* function createFn() {
+        var result=new Array();
+        for(var i=0;i<10;i++){
+            result[i]=function(){
+                return i;
+            }
+        }
+        return result;                      //看似返回一个自己索引值的数组，实际返回的都是10
+    }*/
+
+    //通过创建另一个匿名函数强制让闭包符合预期
+/*    function createFn() {
+        var result=new Array();
+        for(var i=0;i<10;i++){
+            result[i]=function(num){        //将匿名函数的结果马上赋值给数组result
+                return function(){
+                    return num;             //此匿名函数内部又创建了一个访问num的闭包，这样result数组中每个函数都有num变量的一个副本
+                };
+            }(i)
+        }
+        return result;                      //看似返回一个自己索引值的数组，实际返回的都是10
+    }*/
+
+
+    //二、this对象
+    /*1.this对象是在运行时基于函数的执行环境绑定的。
+        全局函数中，this=window
+        函数被当做某个对象的方法调用时,this等于那个对象
+      2.匿名函数的执行环境具有局限性，一般this通常指向window(在call和apply改变函数执行环境的情况下，this指向其对象)
+        */
+   /* var name="the window";               //创建全局变量name
+    var object={
+        name:"my object",
+        getName:function(){
+            return function(){
+                return this.name;
+            };
+        }
+    };
+    console.log(object.getName()());      //返回the window
+*/
+
+    //把外部作用域中的this对象保存在闭包能够访问到的变量里，闭包就可以访问my object
+    var name="the window";
+    var object={
+        name:"my object",
+        getName:function(){
+            var _this=this;
+            return function(){
+                return _this.name;
+            };
+        }
+    };
+    console.log(object.getName()());      //返回the window
+
+
+    //三、内存泄露
+    //1.ie9之前在闭包的作用域链中保存html元素，意味着该元素无法被销毁
+ /*   function demo(){
+        var ele=document.getElementById("demo");
+        ele.onclick=function(){
+            console.log(ele.id);           //匿名函数保存了一个对demo的活动对象的引用(ele),只要匿名函数在，ele的引用次数最少是1，所占内存无法销毁
+        };
+    }*/
+
+    //解决办法
+    function demo(){
+        var ele=document.getElementById("demo");
+        var id=ele.id;                 //把ele.id的副本保存在一个变量中，并在闭包中引用该变量
+        ele.onclick=function(){
+            console.log(id);           //匿名函数保存了一个对demo的活动对象的引用(ele),只要匿名函数在，所占内存无法销毁
+        };
+        ele=null;                      //解除对dom对象的引用，确保正常回收被占用的内存
+    }
+
+
+    //四、模仿块级作用域
+    // 1. js没有块级作用域的概念,意味着在块级语句中定义的变量，实际上是在包含函数中而非语句中创建的
+    // 2. 形式：将函数声明包含在括号里，表示它实际上是函数表达式 。没有圆括号包含会出错，因为js把关键字function当成函数声明的开始，而函数声明后不能再跟括号
+    /*3.  使用范围：经常在全局作用域中被用在函数外部，从而限制向全局作用域中添加过多变量和参数
+          过多的全局变量和函数会导致命名冲突*/
+
+
+    /*    function count(num){
+            for(var i=0;i<num;i++){
+               alert(i)
+            }
+            alert(i);         //变量i是定义在count的活动对象中的，从被定义开始，在函数内部就可以访问
+        }*/
+
+    //匿名函数可以模仿块级作用域(私有作用域)
+    //只要临时需要一些变量，就可以使用私有作用域
+/*
+    (function(){         //将函数声明包含在括号里，表示它实际上是函数表达式 。没有圆括号包含会出错，因为js把关键字function当成函数声明的开始，而函数声明后不能再跟括号
+
+    })();                //这个括号表示会立即调用这个函数
+
+    function count(num){
+        (function(){                              //匿名函数中任何变量，在执行完毕后被销毁
+            for(var i=0;i<num;i++){               //在for循环中插入了一个私有作用域 ,i只能在循环中使用
+                alert(i)
+            }
+        })();
+        alert(i);
+
+    }
+*/
+
+
+    //五、私有变量
+    //1.私有变量包含函数的参数，局部变量和在函数内部定义的的其他函数
+    //2.特权方法：有权访问私有变量和私有函数的共有方法(在一个函数内部创建闭包，闭包通过自己的作用域链也可以访问变量)
+    //3.缺点:构造函数模式针对每个实例都会创建同样的一组新方法，静态私有变量可以解决这个问题
+
+
+    //1.在构造函数中定义特权方法
+/*
+    function myFn(){
+        //定义私有变量
+        var privateVar=10;
+        //定义私有函数
+        function privateFn(){
+            return false;
+        }
+
+        //特权方法
+        this.publicFn=function(){
+            privateVar++;
+            return privateFn;
+        };
+    }
+*/
+
+   /* function Person(name){
+        this.getName=function(){          //这两个方法是在构造函数内部定义的，它们作为闭包可以通过作用域链访问name
+            return name;                  //私有变量name在Person中每个实例都不同，因为每次调用构造函数都会重新创建这两个方法
+        };
+        this.setName=function(val){
+            name=val;
+        };
+    }
+
+    var person=new Person('huRan');
+    console.log(person.getName());
+    person.setName('rita');
+    console.log(person.getName());*/
+
+
+    //静态私有变量
+    //2.通过私有作用域定义私有变量或函数，也可以创建特权方法
+
+
+
+
+
+
+
 
 </script>
+
 
 
 </body>
